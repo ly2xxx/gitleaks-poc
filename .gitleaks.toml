@@ -1,0 +1,33 @@
+# Custom Gitleaks configuration to detect password patterns
+title = "Custom Gitleaks Config"
+
+# Extend default rules and add custom password detection rules
+[extend]
+useDefault = true
+
+[[rules]]
+id = "password-assignment"
+description = "Detects password assignments with common keywords"
+regex = '''(?i)(password|pwd|passwd)\s*[=:]\s*['""][^'""]{3,}['""]'''
+tags = ["password", "security"]
+
+[[rules]]
+id = "password-variable"
+description = "Detects password variables and assignments"
+regex = '''(?i)(password|pwd|passwd)\s*[=:]\s*[^'""]\S{3,}'''
+tags = ["password", "security"]
+
+[[rules]]
+id = "simple-password"
+description = "Detects simple password patterns"
+regex = '''(?i)(password|pwd)\s*[=:]\s*['""]\d{4,}['"]'''
+tags = ["password", "weak-password"]
+
+[[allowlists]]
+description = "Allowlist for test files and documentation"
+paths = [
+    '''(?i)test.*\.py$''',
+    '''(?i).*test\..*$''',
+    '''(?i).*\.md$''',
+    '''(?i).*\.example$''',
+]
