@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wget:*)",
+      "Bash(tar:*)",
+      "Bash(chmod:*)",
+      "Bash(./gitleaks version)",
+      "Bash(./gitleaks detect --source . --verbose)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(./gitleaks detect --source . --report-format json --report-path gitleaks-report.json)",
+      "Bash(python3:*)",
+      "Bash(pip install:*)"
+    ],
+    "deny": []
+  }
+}
