@@ -216,6 +216,197 @@ Line:        12
 .\gitleaks.exe generate config
 ```
 
+## 📈 Historical Commit Scanning
+
+Use these commands to scan specific commit ranges, dates, or authors in your git history:
+
+### Scan Specific Commit Range
+
+#### Linux/macOS:
+```bash
+# Scan commits between two specific commits
+./gitleaks detect --source . --log-opts="commit1..commit2"
+
+# Scan last N commits
+./gitleaks detect --source . --log-opts="-10"
+
+# Scan commits since a specific date
+./gitleaks detect --source . --log-opts="--since='2024-01-01'"
+
+# Scan commits by author
+./gitleaks detect --source . --log-opts="--author='username'"
+
+# Scan commits from last week
+./gitleaks detect --source . --log-opts="--since='1 week ago'"
+```
+
+#### Windows:
+```powershell
+# Scan commits between two specific commits
+.\gitleaks.exe detect --source . --log-opts="commit1..commit2"
+
+# Scan last N commits
+.\gitleaks.exe detect --source . --log-opts="-10"
+
+# Scan commits since a specific date
+.\gitleaks.exe detect --source . --log-opts="--since='2024-01-01'"
+
+# Scan commits by author
+.\gitleaks.exe detect --source . --log-opts="--author='username'"
+
+# Scan commits from last week
+.\gitleaks.exe detect --source . --log-opts="--since='1 week ago'"
+```
+
+### Scan Branch Differences
+
+#### Linux/macOS:
+```bash
+# Scan commits that are in feature-branch but not in main
+./gitleaks detect --source . --log-opts="main..feature-branch"
+
+# Scan uncommitted changes (staged and unstaged)
+./gitleaks detect --source . --log-opts="--cached"
+
+# Scan specific file history
+./gitleaks detect --source . --log-opts="-- path/to/file.py"
+
+# Scan merge commits only
+./gitleaks detect --source . --log-opts="--merges"
+```
+
+#### Windows:
+```powershell
+# Scan commits that are in feature-branch but not in main
+.\gitleaks.exe detect --source . --log-opts="main..feature-branch"
+
+# Scan uncommitted changes (staged and unstaged)
+.\gitleaks.exe detect --source . --log-opts="--cached"
+
+# Scan specific file history
+.\gitleaks.exe detect --source . --log-opts="-- path/to/file.py"
+
+# Scan merge commits only
+.\gitleaks.exe detect --source . --log-opts="--merges"
+```
+
+### Historical Scanning with Custom Configuration
+
+#### Linux/macOS:
+```bash
+# Use custom config for historical scan
+./gitleaks detect --config .gitleaks.toml --source . --log-opts="-20"
+
+# Generate report for specific commit range
+./gitleaks detect --config .gitleaks.toml --source . --log-opts="--since='2024-01-01'" --report-format json --report-path historical-report.json
+```
+
+#### Windows:
+```powershell
+# Use custom config for historical scan
+.\gitleaks.exe detect --config .gitleaks.toml --source . --log-opts="-20"
+
+# Generate report for specific commit range
+.\gitleaks.exe detect --config .gitleaks.toml --source . --log-opts="--since='2024-01-01'" --report-format json --report-path historical-report.json
+```
+
+**Note**: The `--log-opts` parameter accepts any valid `git log` options, making it very flexible for targeting specific commit ranges or filtering criteria.
+
+## 🔍 Current Codebase Scanning
+
+Use the `protect` command to scan only the current working directory files (not git history):
+
+### Basic Current File Scanning
+
+#### Linux/macOS:
+```bash
+# Basic scan of current files
+./gitleaks protect --source .
+
+# Verbose output
+./gitleaks protect --source . --verbose
+
+# Scan specific directory
+./gitleaks protect --source ./src
+
+# With custom configuration
+./gitleaks protect --config .gitleaks.toml --source .
+```
+
+#### Windows:
+```powershell
+# Basic scan of current files
+.\gitleaks.exe protect --source .
+
+# Verbose output
+.\gitleaks.exe protect --source . --verbose
+
+# Scan specific directory
+.\gitleaks.exe protect --source ./src
+
+# With custom configuration
+.\gitleaks.exe protect --config .gitleaks.toml --source .
+```
+
+### Generate Reports for Current Files
+
+#### Linux/macOS:
+```bash
+# Generate JSON report for current files
+./gitleaks protect --source . --report-format json --report-path current-scan.json
+
+# Generate CSV report for current files
+./gitleaks protect --source . --report-format csv --report-path current-scan.csv
+
+# Generate SARIF report for current files
+./gitleaks protect --source . --report-format sarif --report-path current-scan.sarif
+```
+
+#### Windows:
+```powershell
+# Generate JSON report for current files
+.\gitleaks.exe protect --source . --report-format json --report-path current-scan.json
+
+# Generate CSV report for current files
+.\gitleaks.exe protect --source . --report-format csv --report-path current-scan.csv
+
+# Generate SARIF report for current files
+.\gitleaks.exe protect --source . --report-format sarif --report-path current-scan.sarif
+```
+
+### CI/CD Integration
+
+#### Linux/macOS:
+```bash
+# Exit with non-zero code if leaks found (useful for CI)
+./gitleaks protect --source . --exit-code 1
+
+# Scan and fail pipeline if secrets detected
+./gitleaks protect --source . --verbose --exit-code 1
+```
+
+#### Windows:
+```powershell
+# Exit with non-zero code if leaks found (useful for CI)
+.\gitleaks.exe protect --source . --exit-code 1
+
+# Scan and fail pipeline if secrets detected
+.\gitleaks.exe protect --source . --verbose --exit-code 1
+```
+
+### Key Differences Between Commands
+
+**`gitleaks detect`** - Scans Git commit history (default behavior)
+- Examines all commits in the repository
+- Looks at historical changes and committed files
+- Used for: Finding secrets that were previously committed
+
+**`gitleaks protect`** - Scans current working directory files
+- Examines only the current state of files
+- Ignores Git history completely
+- Used for: Pre-commit hooks, CI/CD pipelines, current code scanning
+- Faster for large repositories as it doesn't process Git history
+
 ## 📁 Project Structure
 
 ```
