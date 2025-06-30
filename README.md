@@ -20,7 +20,7 @@ This demo helps developers and security teams:
 
 - Python 3.8+ 
 - Git
-- Linux/macOS (Windows users can use WSL)
+- Linux/macOS/Windows
 
 ### Step 1: Clone the Repository
 
@@ -32,13 +32,24 @@ cd gitleaks-poc
 ### Step 2: Install Python Dependencies
 
 ```bash
+# Create virtual environment (recommended)
+python -m venv venv
+
+# Activate virtual environment
+# On Windows:
+venv\Scripts\activate
+# On Linux/macOS:
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
 ### Step 3: Download and Install Gitleaks
 
-The repository includes a pre-downloaded gitleaks binary, but you can also download the latest version:
+The repository includes a pre-downloaded gitleaks binary for Linux, but you need to download the appropriate version for your operating system:
 
+#### For Linux/macOS:
 ```bash
 # Download latest gitleaks (Linux x64)
 curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | \
@@ -56,6 +67,28 @@ chmod +x gitleaks
 ./gitleaks version
 ```
 
+#### For Windows:
+```powershell
+# Option 1: Download using PowerShell
+Invoke-WebRequest -Uri "https://github.com/gitleaks/gitleaks/releases/download/v8.27.2/gitleaks_8.27.2_windows_x64.zip" -OutFile "gitleaks_windows.zip"
+
+# Extract the ZIP file
+Expand-Archive -Path "gitleaks_windows.zip" -DestinationPath "." -Force
+
+# Test the executable
+.\gitleaks.exe version
+```
+
+```powershell
+# Option 2: Using Chocolatey (if installed)
+choco install gitleaks
+
+# Option 3: Using Scoop (if installed)
+scoop install gitleaks
+```
+
+**Note for Windows users**: You must use `.\gitleaks.exe` (not just `gitleaks`) to run the binary from the current directory. PowerShell doesn't execute programs from the current directory by default for security reasons.
+
 ### Step 4: Run the Demo Application
 
 ```bash
@@ -66,6 +99,7 @@ The application will open in your browser at `http://localhost:8501`.
 
 ### Step 5: Scan for Secrets with Gitleaks
 
+#### Linux/macOS:
 ```bash
 # Basic scan of the current repository
 ./gitleaks detect --source . --verbose
@@ -75,6 +109,18 @@ The application will open in your browser at `http://localhost:8501`.
 
 # Scan specific files
 ./gitleaks detect --source . --verbose --log-opts="--all -- app.py config.py"
+```
+
+#### Windows:
+```powershell
+# Basic scan of the current repository
+.\gitleaks.exe detect --source . --verbose
+
+# Generate a detailed report
+.\gitleaks.exe detect --source . --report-format json --report-path gitleaks-report.json
+
+# Scan specific files
+.\gitleaks.exe detect --source . --verbose --log-opts="--all -- app.py config.py"
 ```
 
 ## 📊 Expected Results
@@ -102,6 +148,8 @@ Line:        12
 ## 🛠️ Available Gitleaks Commands
 
 ### Basic Detection
+
+#### Linux/macOS:
 ```bash
 # Scan current directory
 ./gitleaks detect --source .
@@ -113,7 +161,21 @@ Line:        12
 ./gitleaks detect --source . --log-opts="--since='2024-01-01'"
 ```
 
+#### Windows:
+```powershell
+# Scan current directory
+.\gitleaks.exe detect --source .
+
+# Scan with verbose output
+.\gitleaks.exe detect --source . --verbose
+
+# Scan specific commit range
+.\gitleaks.exe detect --source . --log-opts="--since='2024-01-01'"
+```
+
 ### Generate Reports
+
+#### Linux/macOS:
 ```bash
 # JSON report
 ./gitleaks detect --source . --report-format json --report-path report.json
@@ -125,13 +187,33 @@ Line:        12
 ./gitleaks detect --source . --report-format sarif --report-path report.sarif
 ```
 
+#### Windows:
+```powershell
+# JSON report
+.\gitleaks.exe detect --source . --report-format json --report-path report.json
+
+# CSV report  
+.\gitleaks.exe detect --source . --report-format csv --report-path report.csv
+
+# SARIF report (for GitHub Security tab)
+.\gitleaks.exe detect --source . --report-format sarif --report-path report.sarif
+```
+
 ### Configuration
 ```bash
-# Use custom configuration
+# Use custom configuration (Linux/macOS)
 ./gitleaks detect --source . --config-path custom-gitleaks.toml
 
-# Generate default config file
+# Generate default config file (Linux/macOS)
 ./gitleaks generate config
+```
+
+```powershell
+# Use custom configuration (Windows)
+.\gitleaks.exe detect --source . --config-path custom-gitleaks.toml
+
+# Generate default config file (Windows)
+.\gitleaks.exe generate config
 ```
 
 ## 📁 Project Structure
@@ -142,7 +224,9 @@ gitleaks-poc/
 ├── config.py           # Configuration file with various API keys and credentials
 ├── .env.example        # Environment file example with secrets
 ├── requirements.txt    # Python dependencies
-├── gitleaks           # Gitleaks binary
+├── gitleaks           # Gitleaks binary (Linux)
+├── gitleaks.exe       # Gitleaks binary (Windows, after download)
+├── chat.html          # Conversation history export
 ├── README.md          # This file
 └── reports/           # Generated scan reports (created after running scans)
 ```
@@ -178,7 +262,8 @@ The Streamlit application includes:
 
 ```bash
 # Generate a base configuration
-./gitleaks generate config
+./gitleaks generate config      # Linux/macOS
+.\gitleaks.exe generate config  # Windows
 
 # Edit the generated .gitleaks.toml file to add custom rules
 # Example custom rule for your organization's API keys:
@@ -234,7 +319,42 @@ pre-commit install
 
 ```bash
 # In your CI/CD pipeline
-./gitleaks detect --source . --exit-code 1
+./gitleaks detect --source . --exit-code 1      # Linux/macOS
+.\gitleaks.exe detect --source . --exit-code 1  # Windows
+```
+
+## 🐛 Common Issues & Solutions
+
+### Windows PowerShell Issues
+
+**Problem**: `gitleaks : The term 'gitleaks' is not recognized...`
+
+**Solution**: Use `.\gitleaks.exe` instead of just `gitleaks`. PowerShell requires the `.\` prefix to execute binaries from the current directory.
+
+**Problem**: Gitleaks opens a dialog asking which application to use
+
+**Solution**: You downloaded the Linux binary instead of Windows. Download the Windows version using the PowerShell commands above.
+
+### Permission Issues (Linux/macOS)
+
+**Problem**: `Permission denied` when running `./gitleaks`
+
+**Solution**: Make the binary executable:
+```bash
+chmod +x gitleaks
+```
+
+### Virtual Environment Issues
+
+**Problem**: Module not found errors when running Streamlit
+
+**Solution**: Ensure you're in the virtual environment:
+```bash
+# Windows
+venv\Scripts\activate
+
+# Linux/macOS  
+source venv/bin/activate
 ```
 
 ## 📚 Learning Resources
