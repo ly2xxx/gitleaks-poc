@@ -314,38 +314,38 @@ Use these commands to scan specific commit ranges, dates, or authors in your git
 
 ## 🔍 Current Codebase Scanning
 
-Use the `protect` command to scan only the current working directory files (not git history):
+Use the `detect` command with `--no-git` flag to scan only the current working directory files (not git history):
 
 ### Basic Current File Scanning
 
 #### Linux/macOS:
 ```bash
-# Basic scan of current files
-./gitleaks protect --source .
+# Basic scan of current files (no git history)
+./gitleaks detect --source . --no-git
 
 # Verbose output
-./gitleaks protect --source . --verbose
+./gitleaks detect --source . --no-git --verbose
 
 # Scan specific directory
-./gitleaks protect --source ./src
+./gitleaks detect --source ./src --no-git
 
 # With custom configuration
-./gitleaks protect --config .gitleaks.toml --source .
+./gitleaks detect --config .gitleaks.toml --source . --no-git
 ```
 
 #### Windows:
 ```powershell
-# Basic scan of current files
-.\gitleaks.exe protect --source .
+# Basic scan of current files (no git history)
+.\gitleaks.exe detect --source . --no-git
 
 # Verbose output
-.\gitleaks.exe protect --source . --verbose
+.\gitleaks.exe detect --source . --no-git --verbose
 
 # Scan specific directory
-.\gitleaks.exe protect --source ./src
+.\gitleaks.exe detect --source ./src --no-git
 
 # With custom configuration
-.\gitleaks.exe protect --config .gitleaks.toml --source .
+.\gitleaks.exe detect --config .gitleaks.toml --source . --no-git
 ```
 
 ### Generate Reports for Current Files
@@ -353,25 +353,25 @@ Use the `protect` command to scan only the current working directory files (not 
 #### Linux/macOS:
 ```bash
 # Generate JSON report for current files
-./gitleaks protect --source . --report-format json --report-path current-scan.json
+./gitleaks detect --source . --no-git --report-format json --report-path current-scan.json
 
 # Generate CSV report for current files
-./gitleaks protect --source . --report-format csv --report-path current-scan.csv
+./gitleaks detect --source . --no-git --report-format csv --report-path current-scan.csv
 
 # Generate SARIF report for current files
-./gitleaks protect --source . --report-format sarif --report-path current-scan.sarif
+./gitleaks detect --source . --no-git --report-format sarif --report-path current-scan.sarif
 ```
 
 #### Windows:
 ```powershell
 # Generate JSON report for current files
-.\gitleaks.exe protect --source . --report-format json --report-path current-scan.json
+.\gitleaks.exe detect --source . --no-git --report-format json --report-path current-scan.json
 
 # Generate CSV report for current files
-.\gitleaks.exe protect --source . --report-format csv --report-path current-scan.csv
+.\gitleaks.exe detect --source . --no-git --report-format csv --report-path current-scan.csv
 
 # Generate SARIF report for current files
-.\gitleaks.exe protect --source . --report-format sarif --report-path current-scan.sarif
+.\gitleaks.exe detect --source . --no-git --report-format sarif --report-path current-scan.sarif
 ```
 
 ### CI/CD Integration
@@ -379,33 +379,63 @@ Use the `protect` command to scan only the current working directory files (not 
 #### Linux/macOS:
 ```bash
 # Exit with non-zero code if leaks found (useful for CI)
-./gitleaks protect --source . --exit-code 1
+./gitleaks detect --source . --no-git --exit-code 1
 
 # Scan and fail pipeline if secrets detected
-./gitleaks protect --source . --verbose --exit-code 1
+./gitleaks detect --source . --no-git --verbose --exit-code 1
 ```
 
 #### Windows:
 ```powershell
 # Exit with non-zero code if leaks found (useful for CI)
-.\gitleaks.exe protect --source . --exit-code 1
+.\gitleaks.exe detect --source . --no-git --exit-code 1
 
 # Scan and fail pipeline if secrets detected
-.\gitleaks.exe protect --source . --verbose --exit-code 1
+.\gitleaks.exe detect --source . --no-git --verbose --exit-code 1
+```
+
+### Pre-commit Hook Scanning (Uncommitted Changes Only)
+
+For scanning only uncommitted changes (staged/unstaged files), use the `protect` command:
+
+#### Linux/macOS:
+```bash
+# Scan uncommitted changes only
+./gitleaks protect --source .
+
+# Scan staged changes only
+./gitleaks protect --source . --staged
+```
+
+#### Windows:
+```powershell
+# Scan uncommitted changes only
+.\gitleaks.exe protect --source .
+
+# Scan staged changes only
+.\gitleaks.exe protect --source . --staged
 ```
 
 ### Key Differences Between Commands
 
-**`gitleaks detect`** - Scans Git commit history (default behavior)
+**`gitleaks detect`** (default) - Scans Git commit history
 - Examines all commits in the repository
 - Looks at historical changes and committed files
 - Used for: Finding secrets that were previously committed
+- Example: 248 leaks found, 11 commits scanned
 
-**`gitleaks protect`** - Scans current working directory files
-- Examines only the current state of files
-- Ignores Git history completely
-- Used for: Pre-commit hooks, CI/CD pipelines, current code scanning
-- Faster for large repositories as it doesn't process Git history
+**`gitleaks detect --no-git`** - Scans ALL current filesystem files
+- Examines ALL files in the current directory regardless of git status
+- Scans files directly from filesystem (not from git)
+- Includes untracked files, ignored files, and all working directory content
+- Used for: Complete current codebase scanning, security audits, comprehensive detection
+- Typically finds MORE secrets than git-based scanning
+- Example: 427 leaks found, no git commits processed
+
+**`gitleaks protect`** - Scans uncommitted changes only
+- Examines only modified/staged files that haven't been committed
+- Used for: Pre-commit hooks, preventing secrets from being committed
+- Most efficient for preventing new secrets from entering the repository
 
 ## 📁 Project Structure
 

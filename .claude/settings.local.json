@@ -12,7 +12,10 @@
       "Bash(./gitleaks detect --source . --report-format json --report-path gitleaks-report.json)",
       "Bash(python3:*)",
       "Bash(pip install:*)",
-      "Bash(./gitleaks detect --config .gitleaks.toml --source . --verbose)"
+      "Bash(./gitleaks detect --config .gitleaks.toml --source . --verbose)",
+      "Bash(./gitleaks protect --config .gitleaks.toml --source . --verbose)",
+      "Bash(./gitleaks protect:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }
